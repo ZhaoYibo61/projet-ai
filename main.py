@@ -3,13 +3,14 @@ from keras.layers import Conv2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
+from keras.preprocessing.image import ImageDataGenerator
+import simplejson
 
 import matplotlib.pyplot as plt
 
-# Initialising the CNN
 classifier = Sequential()
 
-# Convolution
+# first convolution
 classifier.add(Conv2D(28, (3, 3), input_shape = (28, 28, 3), activation = 'relu'))
 classifier.add(MaxPooling2D(pool_size = (2, 2)))
 
@@ -29,7 +30,7 @@ classifier.compile(optimizer="rmsprop", loss = 'binary_crossentropy', metrics = 
 
 # Part 2 - Fitting the CNN to the images
 
-from keras.preprocessing.image import ImageDataGenerator
+
 
 train_datagen = ImageDataGenerator(rotation_range=40,
         width_shift_range=0.2,
@@ -54,13 +55,21 @@ test_set = test_datagen.flow_from_directory('dataset/keras/test_02',
 
 history = classifier.fit_generator(training_set,
                          steps_per_epoch = 250,
-                         epochs = 40,
+                         epochs = 2,
                          validation_data = test_set,
                          validation_steps = 150)
 
 
 
+# serialize model to JSON
+model_json = classifier.to_json()
+with open("model.json", "w") as json_file:
+    json_file.write(simplejson.dumps(simplejson.loads(model_json), indent=4))
+
+
 classifier.save_weights('first_try.h5')
+
+
 
 # Loss Curves
 plt.figure(figsize=[8, 6])
